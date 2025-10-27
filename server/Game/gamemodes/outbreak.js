@@ -41,8 +41,8 @@ class Outbreak {
     }
     start() { this.gameActive = true; };
 
-    redefine(theshit) {
-        global.gameManager = theshit;
+    redefine(data) {
+        global.gameManager = data;
     }
 }
 

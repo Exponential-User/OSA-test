@@ -101,7 +101,7 @@ class bossRush {
             [ 50, "theia"],
 
             //eternals
-            [100, "legionaryCrasherFix" /*fucking mid*/],
+            [100, "legionaryCrasherFix" /*is bad*/],
             [100, "kronos"],
             [100, "ragnarok"],
         ];
@@ -247,10 +247,10 @@ class bossRush {
     }
 
     spawnWave(waveId) {
-        //yell at everyone
+        // calmly talk to everyone
         global.gameManager.socketManager.broadcast(`Wave ${waveId + 1} has started!`);
 
-        //spawn bosses
+        // spawn bosses
         for (let boss of this.waves[waveId]) {
             let spot = ran.choose(global.gameManager.room.spawnable["bossSpawnTile"]).randomInside();
 
@@ -259,7 +259,7 @@ class bossRush {
         }
 
         if (!Config.CLASSIC_SIEGE) {
-            //spawn fodder enemies
+            // spawn fodder enemies
             for (let i = 0; i < this.waveId / 5; i++) {
                 this.spawnEnemyWrapper(ran.choose(global.gameManager.room.spawnable["bossSpawnTile"]).randomInside(), ran.choose(this.sentinelChoices));
             }
@@ -309,8 +309,8 @@ class bossRush {
         this.defineProperties();
     }
     
-    redefine(theshit) {
-        this.room = theshit.room;
+    redefine(data) {
+        this.room = data.room;
         this.defineProperties();
     }
 

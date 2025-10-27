@@ -63,7 +63,7 @@ class Tag {
           global.gameManager.closeArena();
         }, 3e3);
     }
-    redefine(theshit) {
+    redefine(data) {
         Config.TAG_DATA.redefineTeams();
     }
 }

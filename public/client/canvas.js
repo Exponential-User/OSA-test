@@ -166,7 +166,7 @@ class Canvas {
             case global.KEY_LEVEL_UP:
                 this.socket.talk('L');
                 break;
-            case global.KEY_FUCK_YOU:
+            case global.KEY_SPECIAL:
                 this.socket.talk('0');
                 break;
             case global.KEY_BECOME:
@@ -178,7 +178,7 @@ class Canvas {
             case global.KEY_BECOME:
                 this.socket.talk("H");
                 break;
-            case global.KEY_SUICIDE:
+            case global.KEY_DEATH:
                 this.socket.talk('1');
                 break;
         }

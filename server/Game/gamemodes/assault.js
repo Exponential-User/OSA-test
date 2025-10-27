@@ -130,8 +130,8 @@ class Assault {
         this.defineProperties();
     }
     
-    redefine(theshit) {
-        this.room = theshit.room;
+    redefine(data) {
+        this.room = data.room;
         this.defineProperties();
     }
 }

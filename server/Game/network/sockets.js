@@ -411,7 +411,7 @@ class socketManager {
                     "spinlock" //spinlock does something both in the client and server side
                 ][tog];
     
-                // Kick if it sent us shit.
+                // Kick if it sent us random stuff.
                 if (!given) {
                     socket.kick("Bad toggle.");
                     return 1;

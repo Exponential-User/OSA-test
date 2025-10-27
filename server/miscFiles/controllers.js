@@ -495,9 +495,9 @@ class io_nearestDifferentMaster extends IO {
                         range = this.body.fov;
                     }
                 } else {
-                    let rangeshit = (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range);
-                    if (rangeshit < range) {
-                        range = rangeshit;
+                    let range1 = (v.speed || 1.5) * (v.range < (this.body.size * 2) ? this.body.fov : v.range);
+                    if (range1 < range) {
+                        range = range1;
                     }
                 }
                 break;

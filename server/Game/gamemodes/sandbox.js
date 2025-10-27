@@ -14,10 +14,10 @@ class Sandbox {
         }
         if (!global.gameManager.room.settings.sandbox.do_not_change_arena_size) global.gameManager.updateBounds(this.xgrid * 30, this.ygrid * 30)
     }
-    redefine(theshit) {
-        this.clients = theshit.clients;
-        this.xgrid = theshit.room.xgrid;
-        this.ygrid = theshit.room.ygrid;
+    redefine(data) {
+        this.clients = data.clients;
+        this.xgrid = data.room.xgrid;
+        this.ygrid = data.room.ygrid;
         this.length = 0;
     }
 }

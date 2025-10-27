@@ -118,10 +118,10 @@ const global = {
     KEY_SPIN_LOCK: 88,// X
 
     KEY_LEVEL_UP: 78,
-    KEY_FUCK_YOU: 80,// P
+    KEY_SPECIAL: 80,// P
     KEY_CLASS_TREE: 84,// T
     KEY_MAX_STAT: 77,// M
-    KEY_SUICIDE: 79,// O
+    KEY_DEATH: 79,// O
     KEY_ZOOM_OUT: 45,// ??
     KEY_ZOOM_IN: 61,// ??
     KEY_DEBUG: 76,// L

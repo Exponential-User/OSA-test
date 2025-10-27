@@ -977,7 +977,6 @@ import * as socketStuff from "./socketinit.js";
         //we want people to be able to use the section sign in writing too
         // string with double §           txt   col   txt                      txt
         // "...§text§§text§..." => [..., "text", "", "text", ...] => [..., "text§text", ...]
-        // this code is balanced on tight threads, holy shit
         let textArrayRaw = rawText.split('§'),
             textArray = [];
         if (!(textArrayRaw.length & 1)) {

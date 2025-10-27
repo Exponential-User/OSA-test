@@ -57,13 +57,13 @@ class gamemodeManager {
         if (Config.MOTHERSHIP) this.gameMothership.reset();
     }
 
-    redefine(theshit) {
-        this.gameSiege.redefine(theshit);
-        this.gameAssault.redefine(theshit);
-        this.gameTag.redefine(theshit);
-        this.gameSandbox.redefine(theshit);
+    redefine(data) {
+        this.gameSiege.redefine(data);
+        this.gameAssault.redefine(data);
+        this.gameTag.redefine(data);
+        this.gameSandbox.redefine(data);
         this.gameMaze.redefine(Config.MAZE_TYPE);
-        this.gameOutreak.redefine(theshit);
+        this.gameOutreak.redefine(data);
     }
 }
 

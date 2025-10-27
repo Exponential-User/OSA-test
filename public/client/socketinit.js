@@ -941,7 +941,7 @@ let incoming = async function(message, socket) {
                 camvy = m[5],
                 camscoping = m[6],
                 // We'll have to do protocol decoding on the remaining data
-                theshit = m.slice(7);
+                data = m.slice(7);
                 // More stuff
                 let defaultFov = 2000;
             // Process the data
@@ -952,11 +952,11 @@ let incoming = async function(message, socket) {
                 global.player.time = camtime + lag.get();
                 global.metrics.rendergap = camtime - global.player.lastUpdate;
                 if (global.metrics.rendergap <= 0) {
-                    console.log('yo some bullshit is up wtf');
+                    console.log('Something is wrong');
                 }
                 global.player.lastUpdate = camtime;
                 // Convert the gui and entities
-                convert.begin(theshit);
+                convert.begin(data);
                 convert.gui();
                 convert.data();
                 // Save old physics values
