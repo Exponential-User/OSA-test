@@ -201,62 +201,43 @@ let commands = [
         }
     },
     {
-        command: ["getEntities", "ge"],
-        description: "Logs the object to the server process.",
+        command: ["getObject", "go"],
+        description: "Logs an object to the server process. (Used for debugging purposes)",
         level: 5,
+        // hidden: true,
         run: ({ gameManager, socket, args }) => {
             let sendAvailablegetEntitiesCommandsMessage = () => {
                 let lines = [
                     "Help menu:",
-                    "- $ (getEntities / ge) <path to entity> - logs the object, array or value to the server process.",
+                    "- $ (getObject / go) <object> <path to object/array> - logs the object, array, value, or function to the server process. (useful for debugging)",
                 ];
                 socket.talk("Em", 10_000, JSON.stringify(lines));
             }
-            if (!args[0]) {
-                sendAvailablegetEntitiesCommandsMessage();
-                return;
-            }
 
-            console.log("Getting entity path:", args);
-            if (args[0] === "socket") {
-                console.log(socket);
-                socket.talk("m", 5_000, "Socket logged to server process.");
-                return;
+            let path;
+            console.log("Getting object path:", args);
+            if (!args[0]) sendAvailablegetEntitiesCommandsMessage();
+            else {
+                switch (args[0]) {
+                    case "gameManager":
+                        path = getObjectPath(args.slice(1), gameManager);
+                        socket.talk("m", 5_000, "gameManager logged to server process.");
+                        break;
+                    case "socket":
+                        path = getObjectPath(args.slice(1), socket);
+                        socket.talk("m", 5_000, "Socket logged to server process.");
+                        break;
+                }
             }
-            let path = getGameManagerPath(args, gameManager);
-            if (path === undefined) {
+            if (typeof path === "function") {
+                socket.talk("m", 5_000, "This path is a function. Check the server console.");
+                console.log(path.toString());
+                return;
+            } else if (path === undefined) {
                 socket.talk("m", 5_000, "Invalid path.");
                 return;
             }
             console.log(path);
-            socket.talk("m", 5_000, "Entities logged to server process.");
-        }
-    },
-    {
-        command: ["getFunction", "gf"],
-        description: "Logs the function to the server process.",
-        level: 5,
-        run: ({ gameManager, socket, args }) => {
-            let sendAvailablegetFunctionCommandsMessage = () => {
-                let lines = [
-                    "Help menu:",
-                    "- $ (getFunction / gf) <path to function> - logs the function to the server process.",
-                ];
-                socket.talk("Em", 10_000, JSON.stringify(lines));
-            }
-            if (!args[0]) {
-                sendAvailablegetFunctionCommandsMessage();
-                return;
-            }
-            console.log("Getting function path:", args);
-            let path = getGameManagerPath(args, gameManager);
-            if (path === undefined || typeof path !== "function") {
-                socket.talk("m", 5_000, "Invalid path or not a function.");
-                sendAvailablegetFunctionCommandsMessage();
-                return;
-            }
-            console.log(JSON.stringify(path));
-            socket.talk("m", 5_000, "Function logged to server process.");
         }
     },
     {
@@ -415,9 +396,9 @@ global.addChatCommand = function (command) {
 }
 
 /** HELPER FUNCTIONS **/
-function getGameManagerPath(args, gameManager) {
+function getObjectPath(args, object) {
     if (!args || (Array.isArray(args) && args.length === 0)) {
-        return gameManager;
+        return object;
     }
 
     // Normalize the path into an array of keys (handles arrays & dotted strings)
@@ -436,7 +417,7 @@ function getGameManagerPath(args, gameManager) {
 
     console.log("Normalized parts:", normalized);
 
-    let result = gameManager;
+    let result = object;
 
     for (let part of normalized) {
         if (result == null) return undefined;
