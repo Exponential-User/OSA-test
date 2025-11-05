@@ -846,7 +846,7 @@ let incoming = async function(message, socket) {
                 global.player.roomAnim.y.add(m[1]);
                 global.roomSetup = JSON.parse(m[2]);
             } break;
-            case "bansussy": {
+            case "tempBan": {
                 global.message = "You have been temporarily banned from the game. You will be able to rejoin after a server restart.";
             } break;
             case "permanentban": {
@@ -1148,6 +1148,21 @@ let incoming = async function(message, socket) {
         case 'DS': { // Deactivate smooth camera if needed.
             if (!config.graphical.smoothcamera2) config.graphical.smoothcamera = false;
             delete config.graphical.smoothcamera2;
+        } break;
+        case 'e': { // getting user roles
+            global.roles = JSON.parse(m[0]);
+        } break;
+        case "cmd": {
+            let cmd = m[0].toLowerCase();
+            switch (cmd) {
+                case "blackout": {
+                    global.advanced.blackout.active = !global.advanced.blackout.active;
+                    global.advanced.blackout.color = "#000000";
+                } break;
+            }
+        } break;
+        case 'AUTOCOMPLETE_RESPONSE': {// WIP
+            global.autoCompleteOptions = m[0];
         } break;
         case 'CHAT_MESSAGE_ENTITY': {
             get.set(m);

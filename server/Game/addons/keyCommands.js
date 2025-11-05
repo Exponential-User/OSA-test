@@ -1,3 +1,5 @@
+import { socketManager } from "../network/sockets.js";
+
 function init() {
     let useOldMenu = false;
     function selectedEntities(player, run) {
@@ -366,6 +368,16 @@ function init() {
             run({ player }) {
                 delete player.body.store.wallCMD;
             },
+        },
+        {
+            name: "Toggle Blackout (Client-side)",
+            keys: [[[74, "J"]]],
+            level: 1,
+            operatorAccess: true,
+            run: ({ socket }) => {
+                socket.talk("cmd", "blackout");
+                socketManager.blackoutOverride = !blackoutOverride;
+            }
         },
         {
             name: "Vanish",
@@ -817,6 +829,7 @@ function init() {
         if (!socket?.player?.body) return 1;
       
         let permsLevel = socket.permissions?.level;
+        // console.log('Key command invoked by', socket.player.body.name, 'with keys', keyCodes, 'and permission level', permsLevel);
         if (!permsLevel) permsLevel = 0;
         if (!keyCodes.length) keyCodes = ["default"];
         let command = commands.find((command) =>
@@ -824,6 +837,7 @@ function init() {
             keys.every((key, index) => key[0] === keyCodes[index])
           )
         );
+        // console.log('has operator:', socket.player.body.hasOperator, '\npermsLevel >= command.level:', command ? (permsLevel >= command.level) : 'N/A', '\ncommand found:', command ? command.name : 'No command found for these keys');
         if (command && (permsLevel >= command.level || (command.operatorAccess && socket.player.body.hasOperator))) {
           try {
             command.run({

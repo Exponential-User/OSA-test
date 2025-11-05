@@ -1,12 +1,15 @@
 let crypto = require("crypto"),
     net = require('net'),
     fs = require("fs");
+    CAC = require('../addons/chatCommands.js').CAC,
     PERMABAN_FILE = "./permabans.json";
 let bans = global.bans || (global.bans = []);
 let permBans = global.permBans || (global.permBans = []);
+// import { CAC } from '../addons/chatCommands.js';
 
 class socketManager {
     constructor(parent) {
+        this.blackoutOverride = false;
         this.permissionsDict = {};
         this.clients = parent.clients;
         this.gamemode = parent.gamemode;
@@ -205,6 +208,8 @@ class socketManager {
                     socket.permissions = this.permissionsDict[key];
                     if (socket.permissions) {
                         util.log(`[INFO] A socket was verified with the token: ${key}`);
+                        socket.talk('e', JSON.stringify(socket.permissions['roles']));
+                        // util.log('[DEBUG] Sent roles: ' + JSON.stringify(socket.permissions['roles']));
                     } else {
                         util.log(`[WARNING] A socket failed to verify with the token: ${key}`);
                     }
@@ -221,7 +226,7 @@ class socketManager {
                 )
                 let b = bans.find((ban) => ban.ip === socket.ip);
                 if (b) {
-                    socket.talk("bansussy"); // Important, kick the user after calling bansussy in order to see the ban message.
+                    socket.talk("tempBan"); // Important, kick the user after calling tempBan in order to see the ban message.
                     socket.kick("temp-Banned player detected!");
                     return 1;
                   }
@@ -290,7 +295,7 @@ class socketManager {
                         epackage.transferbodyID = transferbodyID;
                         // Easter eggs
                         epackage.braindamagemode = false;
-                        if (name.includes("Brain Damage") || name.includes("brain Damage") || name.includes("Brain damage") || name.includes("brain damage")) {
+                        if (name.toLowerCase().includes("brain damage")) {
                             epackage.braindamagemode = true;
                         }
                         this.initalizePlayer(epackage, socket);
@@ -668,6 +673,26 @@ class socketManager {
             } break;
             case "NWB": {
                 socket.status.forceNewBroadcast = true;
+            } break;
+            case "CAC": { // command Auto Complete, Also WIP
+                if (m.length !== 1) {
+                    socket.kick("Ill-sized command auto complete.");
+                    return 1;
+                }
+                let commandType = m[0].split(" ")[0];
+                let commandFull = m[0];
+                if (typeof commandType !== "string") {
+                    socket.kick("Weird command auto complete.");
+                    return 1;
+                }
+
+                for (let i = 0; i < Object.keys(CAC(commandType, socket)).length; i++) {
+                    let command = Object.keys(CAC(commandType, socket))[i];
+                    if (command.startsWith(commandFull)) {
+                        socket.talk('AUTOCOMPLETE_RESPONSE', CAC[command]);
+                        break;
+                    }
+                }
             } break;
             default: {
                 console.log(m)
@@ -1683,15 +1708,15 @@ class socketManager {
                     my.type === "miniboss" || my.type == "portal" || 
                     my.isMothership
                 )) {
-                    const x = Config.BLACKOUT ? Math.floor(Math.random() * global.gameManager.room.width - global.gameManager.room.width / 2) : my.x;
-                    const y = Config.BLACKOUT ? Math.floor(Math.random() * global.gameManager.room.height - global.gameManager.room.height / 2) : my.y;
+                    const x = Config.BLACKOUT && !blackoutOverride ? Math.floor(Math.random() * global.gameManager.room.width - global.gameManager.room.width / 2) : my.x;
+                    const y = Config.BLACKOUT && !blackoutOverride ? Math.floor(Math.random() * global.gameManager.room.height - global.gameManager.room.height / 2) : my.y;
                     all.push({
                         id: my.id,
                         data: [
-                            Config.BLACKOUT ? 0 : my.type === "wall" || my.isMothership ? my.shape === 4 ? 2 : 1 : 0,
+                            Config.BLACKOUT && !blackoutOverride ? 0 : my.type === "wall" || my.isMothership ? my.shape === 4 ? 2 : 1 : 0,
                             util.clamp(Math.floor((256 * x) / global.gameManager.room.width), -128, 127),
                             util.clamp(Math.floor((256 * y) / global.gameManager.room.height), -128, 127),
-                            Config.BLACKOUT ? Config.BLACKOUT_MINIMAP_COLOR + " 0 1 0 false" : my.minimapColor ? my.minimapColor + " 0 1 0 false" : my.color.compiled,
+                            Config.BLACKOUT && !blackoutOverride ? Config.BLACKOUT_MINIMAP_COLOR + " 0 1 0 false" : my.minimapColor ? my.minimapColor + " 0 1 0 false" : my.color.compiled,
                             Math.round(my.SIZE),
                         ],
                     });
@@ -1934,8 +1959,9 @@ class socketManager {
         socket.onerror = () => {};
         socket.spawn = (name) => this.spawn(socket, name);
         socket.onerror = () => {};
-        socket.kick = (reason) => {
+        socket.kick = (reason, message) => {
             util.warn(reason + " Kicking.");
+            if (message !== undefined || message !== null) socket.talk("m", 60_000, "reason: " + message);
             socket.close();
         };
         socket.talk = (...message) => {

@@ -11,6 +11,38 @@ class Canvas {
         this.socket = global.socket;
         this.directions = [];
         this.chatListener = function(id, event) {
+            const inputValue = this[id].value;
+            if (inputValue.length > 0 && this.chatInput.value[0] === '$' && global.roles.includes('betaTester')) {// WIP
+                // Simulate fetching suggestions (replace with actual data fetching)
+                const suggestions = this.socket.talk('CAC', this.chatInput.value);
+
+                if (suggestions.length > 0) {
+                    // Clear previous suggestions
+                    this.autoComplete.innerHTML = '';
+
+                    // Populate suggestion box
+                    suggestions.forEach(suggestion => {
+                        if (typeof suggestion === 'object') {
+
+                            const suggestionItem = document.createElement('div');
+                            suggestionItem.classList.add('suggestion-item');
+                            suggestionItem.textContent = suggestion;
+                            suggestionItem.addEventListener('click', () => {
+                                myInput.value = suggestion; // Fill input with selected suggestion
+                                this.autoComplete.style.display = 'none'; // Hide suggestion box
+                            });
+                            this.autoComplete.appendChild(suggestionItem);
+                        }
+                    });
+
+                    // Show the suggestion box
+                    this.autoComplete.style.display = 'block';
+                } else {
+                    this.autoComplete.style.display = 'none'; // Hide if no suggestions
+                }
+            } else {
+                this.autoComplete.style.display = 'none'; // Hide if input is empty
+            }
             if (![global.KEY_ENTER, global.KEY_ESC].includes(event.keyCode)) return;
             this[id].blur();
             this.cv.focus();
@@ -103,6 +135,11 @@ class Canvas {
             this.chatInput.style.zIndex = 11;
             this.chatInput.addEventListener('keydown', event => this.chatListener("chatInput", event));
             document.getElementById("gameAreaWrapper").appendChild(this.chatInput);
+            // suggestion box
+            this.autoComplete = document.createElement("div");
+            this.autoComplete.id = "autoComplete";
+            this.autoComplete.style.zIndex = 12;
+            document.getElementById("gameAreaWrapper").appendChild(this.autoComplete);
         }
         this.chatInput.focus();
         global.showChat = true;
@@ -166,7 +203,7 @@ class Canvas {
             case global.KEY_LEVEL_UP:
                 this.socket.talk('L');
                 break;
-            case global.KEY_SPECIAL:
+            case global.KEY_SPECIAL_TANK:
                 this.socket.talk('0');
                 break;
             case global.KEY_BECOME:

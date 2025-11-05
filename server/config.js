@@ -39,14 +39,14 @@ module.exports = {
             // The region, can be anything.
             REGION: "local",
             // How many players can join until it's full.
-            MAX_PLAYERS: 15,
+            MAX_PLAYERS: 25,
             // The server ID. Example: (<Yourwebsitename>/#<ServerID>)
             // Important! You cannot make the same server id with a other one or else the server selector will get confused.
-            SERVER_ID: "loc",
+            SERVER_ID: randomServerID(),
             // This is where you can override settings in the config.js file, and as long the gamemode's config doesn't override it.
             PROPERTIES: {
                 // Amount of bots.
-                BOTS: 5,
+                BOTS: 16,
             }
         },
     ],
@@ -72,8 +72,8 @@ module.exports = {
 
     // Welcome message once a player spawns.
     WELCOME_MESSAGE: "You have spawned! Welcome to the game.\n"
-        + "You will be invulnerable until you move or shoot.\n"
-        + "Please report any bugs you encounter!",
+               + "You will be invulnerable until you move or shoot.\n"
+                    + "Please report any bugs you encounter!",
 
     // How long a popup message lasts before fading out in milliseconds.
     MESSAGE_DISPLAY_TIME: 10_000,
@@ -259,4 +259,12 @@ module.exports = {
 
     // Room setup
     ROOM_SETUP: ["room_default"],
+}
+
+function randomServerID() {
+    let ID = Math.random().toString(32).substring(2, 5);
+    if (/\d/.test(ID)) {
+        return randomServerID();
+    }
+    return ID;
 }

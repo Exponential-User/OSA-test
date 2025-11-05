@@ -118,7 +118,7 @@ const global = {
     KEY_SPIN_LOCK: 88,// X
 
     KEY_LEVEL_UP: 78,
-    KEY_SPECIAL: 80,// P
+    KEY_SPECIAL_TANK: 80,// P
     KEY_CLASS_TREE: 84,// T
     KEY_MAX_STAT: 77,// M
     KEY_DEATH: 79,// O
@@ -284,6 +284,8 @@ const global = {
     mockupLoading: { then: cb => cb() },
     treeScale: 1,
     chats: {},
+    roles: [],
+    autoCompleteOptions: [], // WIP
     initPlayer: () => {
         let list = {
             // Set up the player

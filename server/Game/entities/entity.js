@@ -606,7 +606,7 @@ class Entity extends EventEmitter {
         if (this.batchUpgrades && emitEvent) handleBatchUpgradeSplit(this); // Batch upgrades
 
         // Make the entity targetable if they aren't a bullet, etc.
-        const checkIfTargetAble = ["bullet", "drone", "swarm", "trap", "wall", "food", "unknown"];
+        const checkIfTargetAble = ["bullet", "drone", "swarm", "trap", "wall", /*"food",*/ "unknown"];
         if (!checkIfTargetAble.includes(this.type)) {
             targetableEntities.set(this.id, this);
         } else targetableEntities.delete(this.id);

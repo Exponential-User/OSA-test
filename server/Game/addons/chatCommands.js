@@ -137,8 +137,8 @@ let commands = [
     {
         command: ["broadcast"],
         description: "Broadcast a message to all players.",
-        level: 2,
-        hidden: true,
+        level: 3,
+        // hidden: true,
         run: ({ args, socket }) => {
             if (!args[0]) {
                 socket.talk("m", 5_000, "No message specified.");
@@ -149,9 +149,120 @@ let commands = [
         }
     },
     {
+        command: ["admin", "adm"],
+        description: "Admin commands, Abusing these without permission will get your role revoked",
+        level: 4,
+        run: ({ socket, args, gameManager }) => {
+            let sendAvailableAdminCommandsMessage = () => {
+                let lines = [
+                    "Help menu:",
+                    "- $ (admin / adm) kick <player name> <reason> - kicks a player from the server.",
+                    "- $ (admin / adm) tp <player name> <x> <y> - Teleports a player to a specified position.",
+                ];
+                socket.talk("Em", 10_000, JSON.stringify(lines));
+            }
+            if (!args[0]) sendAvailableAdminCommandsMessage();
+            else {
+                switch (args[0]) {
+                    case "kick":
+                        if (!args[1]) {
+                            socket.talk("m", 5_000, "No player specified.");
+                            return;
+                        }
+                        let playerToKick = Array.from(gameManager.clients).find(s => s.player.body.name.toLowerCase() === args[1].toLowerCase());
+                        if (!playerToKick) {
+                            socket.talk("m", 5_000, "Player not found.");
+                            return;
+                        }
+                        let reason = (args[2] !== undefined || args[2] !== null || args.length > 3) ? args.slice(2).join(" ") : "No reason specified.";
+                        playerToKick.talk("m", 30_000, "You have been kicked from the server by an admin.");
+                        playerToKick.kick(args[1] + " was kicked by an admin, With reason: " + reason, reason);
+                        socket.talk("m", 10_000, args[1] + " was kicked.");
+                        break;
+                    case "tp":
+                        if ((!args[1] || !args[2] || !args[3])) {
+                            socket.talk("m", 5_000, "Invalid arguments.");
+                            return;
+                        }
+                        let x = parseInt(args[2] * 30);
+                        let y = parseInt(args[3] * 30);
+                        let playerIndex = 0;
+                        for (let player of gameManager.clients) {
+                            if (player.player.body.name.toLowerCase() === args[1].toLowerCase()) break;
+                            playerIndex++;
+                        }
+                        gameManager.clients[playerIndex].player.body.x = x;
+                        gameManager.clients[playerIndex].player.body.y = y;
+                        // socket.player.body.refreshBodyAttributes();
+                        socket.talk("m", 5_000, `Teleported to (${args[2]}, ${args[3]}).`);
+                        break;
+                }
+            }
+        }
+    },
+    {
+        command: ["getEntities", "ge"],
+        description: "Logs the object to the server process.",
+        level: 5,
+        run: ({ gameManager, socket, args }) => {
+            let sendAvailablegetEntitiesCommandsMessage = () => {
+                let lines = [
+                    "Help menu:",
+                    "- $ (getEntities / ge) <path to entity> - logs the object, array or value to the server process.",
+                ];
+                socket.talk("Em", 10_000, JSON.stringify(lines));
+            }
+            if (!args[0]) {
+                sendAvailablegetEntitiesCommandsMessage();
+                return;
+            }
+
+            console.log("Getting entity path:", args);
+            if (args[0] === "socket") {
+                console.log(socket);
+                socket.talk("m", 5_000, "Socket logged to server process.");
+                return;
+            }
+            let path = getGameManagerPath(args, gameManager);
+            if (path === undefined) {
+                socket.talk("m", 5_000, "Invalid path.");
+                return;
+            }
+            console.log(path);
+            socket.talk("m", 5_000, "Entities logged to server process.");
+        }
+    },
+    {
+        command: ["getFunction", "gf"],
+        description: "Logs the function to the server process.",
+        level: 5,
+        run: ({ gameManager, socket, args }) => {
+            let sendAvailablegetFunctionCommandsMessage = () => {
+                let lines = [
+                    "Help menu:",
+                    "- $ (getFunction / gf) <path to function> - logs the function to the server process.",
+                ];
+                socket.talk("Em", 10_000, JSON.stringify(lines));
+            }
+            if (!args[0]) {
+                sendAvailablegetFunctionCommandsMessage();
+                return;
+            }
+            console.log("Getting function path:", args);
+            let path = getGameManagerPath(args, gameManager);
+            if (path === undefined || typeof path !== "function") {
+                socket.talk("m", 5_000, "Invalid path or not a function.");
+                sendAvailablegetFunctionCommandsMessage();
+                return;
+            }
+            console.log(JSON.stringify(path));
+            socket.talk("m", 5_000, "Function logged to server process.");
+        }
+    },
+    {
         command: ["developer", "dev"],
-        description: "Developer commands, go troll some players or just take a look for yourself.",
-        level: 3,
+        description: "Developer commands, do something with these.",
+        level: 5,
         run: ({ socket, args, gameManager }) => {
             let sendAvailableDevCommandsMessage = () => {
                 let lines = [
@@ -303,6 +414,45 @@ global.addChatCommand = function (command) {
     commands.push(command);
 }
 
+/** HELPER FUNCTIONS **/
+function getGameManagerPath(args, gameManager) {
+    if (!args || (Array.isArray(args) && args.length === 0)) {
+        return gameManager;
+    }
+
+    // Normalize the path into an array of keys (handles arrays & dotted strings)
+    const parts = Array.isArray(args)
+        ? args.flatMap(seg =>
+            Array.isArray(seg)
+                ? seg.flatMap(s => (typeof s === 'string' ? s.split('.') : [s]))
+                : (typeof seg === 'string' ? seg.split('.') : [seg])
+        )
+        : (typeof args === 'string' ? args.split('.') : [args]);
+
+    // Further split parts like "clients[0].player" into ["clients", "0", "player"]
+    const normalized = parts.flatMap(p =>
+        typeof p === 'string' ? p.split(/[\[\].]+/).filter(Boolean) : [p]
+    );
+
+    console.log("Normalized parts:", normalized);
+
+    let result = gameManager;
+
+    for (let part of normalized) {
+        if (result == null) return undefined;
+
+        // Convert numeric keys to integers when accessing arrays
+        if (Array.isArray(result) && /^\d+$/.test(part)) {
+            part = parseInt(part, 10);
+        }
+
+        result = result[part];
+        // console.log("Accessing key:", part, "\nResult:", result); // DEBUG
+    }
+
+    return result;
+}
+
 
 /** CHAT MESSAGE EVENT **/
 module.exports = ({ Events }) => {
@@ -312,4 +462,19 @@ module.exports = ({ Events }) => {
             runCommand(socket, message, gameManager);
         }
     });
+}, module.exports.CAC = function (partial, socket) {// Command Auto Complete
+    let permissionsLevel = socket.permissions?.level ?? 0;
+    let availableCommands = commands.filter(command => permissionsLevel >= command.level);
+    let matchingCommands = availableCommands.filter(command =>
+        command.command.some(cmd => cmd.startsWith(partial))
+    );
+    let suggestions = [];
+    for (let command of matchingCommands) {
+        for (let cmd of command.command) {
+            if (cmd.startsWith(partial) && !suggestions.includes(cmd)) {
+                suggestions.push(cmd);
+            }
+        }
+    }
+    return suggestions;
 };
