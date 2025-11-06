@@ -337,6 +337,7 @@ Class.gunner = {
 Class.healer = {
     PARENT: "genericTank",
     LABEL: "Healer",
+    HEALING_TANK: true, // Mainly for bots to recognize the tank
     STAT_NAMES: statnames.heal,
     TURRETS: [
         {
@@ -1061,21 +1062,21 @@ Class.crowbar = {
         },
     ],
     TURRETS: [{
-        POSITION: [6, 42, 0, 0, 360, 1],
+        POSITION: [6, 42, 0, 0, 180, 1],
         TYPE: [
             "crowbarTurretTank",
             { INDEPENDENT: true }
         ],
     },
         {
-            POSITION: [6, 32, 0, 0, 360, 1],
+            POSITION: [6, 32, 0, 0, 180, 1],
             TYPE: [
                 "crowbarTurretTank",
                 { INDEPENDENT: true }
             ],
         },
         {
-            POSITION: [6, 22, 0, 0, 360, 1],
+            POSITION: [6, 22, 0, 0, 180, 1],
             TYPE: [
                 "crowbarTurretTank",
                 { INDEPENDENT: true }

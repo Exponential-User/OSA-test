@@ -19,6 +19,7 @@ let Portal = class {
         this.body = null;
     }
     spawn(loc, color = "#ffffff", duration) {
+        console.log(`Spawning portal to ${this.destination} at`, loc);
         if (loc.data) loc.data.has_portal = true;
         this.body = new Entity(loc.data ? loc.randomInside() : loc);
         this.body.define("serverPortal");

@@ -1,10 +1,10 @@
 function init() {
     const EnableBulletShaders = true; // enable shaders for bullets, drones, etc.
 
-    const rad = 0.4
+    const rad = 2.4
     const clr = "black"
     const a = 1
-    const r = 1
+    const r = 2.5
 
     if (EnableBulletShaders) {
         Class.genericEntity.GLOW = {
@@ -24,6 +24,6 @@ function init() {
 
     Class.auraBase.GLOW = {};
 }
-// uncomment line below to enable (these drop your FPS a TON)
+// uncomment line below to enable (these drop your FPS a TON, Unless you have a good setup)
 
 //init();
